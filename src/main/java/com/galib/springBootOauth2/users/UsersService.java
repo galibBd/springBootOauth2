@@ -2,14 +2,17 @@ package com.galib.springBootOauth2.users;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.galib.springBootOauth2.config.AuthUserDetail;
 import com.galib.springBootOauth2.permission.Permission;
 import com.galib.springBootOauth2.permission.PermissionRepository;
 import com.galib.springBootOauth2.role.Role;
@@ -63,7 +66,16 @@ public class UsersService {
 	}
 	
 	public UserDetails findUserByUserName(String name) {
-		return userDetailServiceImpl.loadUserByUsername(name);
+
+		UserDetails user = null;
+
+        try {
+    		  user = userDetailServiceImpl.loadUserByUsername(name);
+		} catch (Exception e) {
+			e.getMessage();
+			System.out.println("exception ::::: "+e.getMessage());
+		}
+        return user;
 	}
 	
 	//add default user

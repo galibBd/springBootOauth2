@@ -27,7 +27,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 @CrossOrigin(origins="*")
 @RestController
-@RequestMapping("/oauth/users")
+@RequestMapping("/api/users")
 public class UsersController {
 	@Autowired
 	UsersService service;
@@ -53,4 +53,9 @@ public class UsersController {
 		return service.addUser(roles);
 	}
 
+	@GetMapping("/get-user-list")
+	List<Users> getUserList(){
+		List<Users> users = service.getUserList();
+		return users;
+	}
 }

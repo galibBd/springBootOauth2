@@ -1,6 +1,8 @@
 package com.galib.springBootOauth2.config;
 
 
+import java.util.Date;
+
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
@@ -18,11 +20,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.galib.springBootOauth2.sessains.Session;
+import com.galib.springBootOauth2.sessains.SessionRepository;
+
 
 /**
  * @author Galib
  *
  */
+
 @CrossOrigin(origins="*")
 @FrameworkEndpoint
 @RestController
@@ -37,6 +43,8 @@ public class RevokeTokenEndpoint {
     @Autowired
 	private TokenStore tokenStore;
 
+	@Autowired
+	SessionRepository sessionRepository;
     /**
      * @param request
      * @return
@@ -44,13 +52,6 @@ public class RevokeTokenEndpoint {
     @DeleteMapping
     @ResponseBody
     public String revokeToken(HttpServletRequest request, OAuth2Authentication authentication) {
-
-    	Object sessionNoObj = null;
-    	Long sessiongLong = null;
-        Boolean revokeFlag = false;
-//        MyUserDetails myUserDetails = null;
-        
-//        CustomWebAuthenticationDeatils authenticationDeatils  = new CustomWebAuthenticationDeatils(request);
         
         String authorization = request.getHeader("Authorization");
         
@@ -62,26 +63,18 @@ public class RevokeTokenEndpoint {
           
            if(null != oAuth2AccessToken) {
 
-        	   sessionNoObj = oAuth2AccessToken.getAdditionalInformation().get("sessionNo");
-        	
-        	   if(null !=sessionNoObj) {
-
-        		   sessiongLong = Long.valueOf(sessionNoObj.toString()); 
+        	   Session session = sessionRepository.findByAccessToken(oAuth2AccessToken.toString());
+        	   
+        	   if(session!=null) {
+        		   session.setLogoutTime(new Date());
+        		   
+        		   sessionRepository.save(session);
         	   }
         	
            }
 
-            revokeFlag = tokenServices.revokeToken(tokenId);
-            System.out.println("access token : "+tokenId+ " revokeFlag : "+revokeFlag +"=================== LOG OUT ==========");
-            
-//            if(revokeFlag) {
-//            	
-//            	if(null !=sessiongLong) {
-//            	    userNormalLogOut(sessiongLong);	
-//            	}
-//           
-//         	   return getSuccessResponse("User Revoke Successfull"); 
-//           }
+            tokenServices.revokeToken(tokenId);
+            System.out.println("access token : "+tokenId+ " revokeFlag : "+tokenServices.revokeToken(tokenId) +"=================== LOG OUT ==========");
    
         }
         
@@ -89,3 +82,5 @@ public class RevokeTokenEndpoint {
     }
 
 }
+
+
